@@ -6,13 +6,22 @@ app = Flask(__name__)
 api = Api(app)
 
 
+class JSONHandler:
+    """Handle json DB file."""
+
+    json = "users_db.json"
+
+    @classmethod
+    def read_all(cls):
+        """Get all data from json."""
+        with open(cls.json, "r") as usersJSON:
+            return json.load(usersJSON)
+
+
 class Users(Resource):
     def get(self):
-        return self._read_users_json()
-
-    def _read_users_json(self):
-        with open("users_db.json", "r") as usersJSON:
-            return json.load(usersJSON)
+        """Return list of users."""
+        return JSONHandler.read_all()
 
 
 class UserById(Resource):
