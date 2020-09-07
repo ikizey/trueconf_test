@@ -24,6 +24,24 @@ class UserById(Resource):
             users = json.load(usersJSON)
             return users.get(id, {"message": "not exists"})
 
+    def delete(self, id):
+        return self._delete_user_from_json(id)
+
+    def _delete_user_from_json(self, id):
+        users = self._get_users()
+        if not id in users:
+            return {"message": "not exists"}
+        del users[id]
+        self._update_users(users)
+        return {"message": "deleted"}
+
+    def _get_users(self):
+        return Users().get()
+
+    def _update_users(self, users):
+        with open("users_db.json", "w") as jsonFile:
+            json.dump(users, jsonFile)
+
 
 class UserByName(Resource):
     def put(self):
