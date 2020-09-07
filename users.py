@@ -24,10 +24,17 @@ class JSONHandler:
             json.dump(data, usersJSON)
 
     @classmethod
-    def update_users(cls, user):
+    def update_user(cls, user):
         """Update data."""
         users = cls.get_users()
         users[user["id"]] = user
+        cls._write_users(users)
+
+    @classmethod
+    def delete_user(cls, id):
+        """Update data."""
+        users = cls.get_users()
+        del users[id]
         cls._write_users(users)
 
     @staticmethod
@@ -38,6 +45,11 @@ class JSONHandler:
         except:
             return False
         return True if name and len(json) == 1 else False
+
+    @classmethod
+    def id_exists(cls, id):
+        """Check if id is present."""
+        return id in cls.get_users()
 
 
 class Users(Resource):
@@ -54,28 +66,25 @@ class UserById(Resource):
 
     def post(self, id):
         """Update user data."""
-        return self._update_user(id)
+        if JSONHandler.id_exists(id):
+            return {"message": "not exists"}
 
-    def _update_user(self, id):
         if not JSONHandler.is_passed_json_valid(request.json):
             return {"message": "use format: {'name': <name>}"}
 
         user = {"id": id}
         user.update(request.json)
 
-        JSONHandler.update_users(user)
+        JSONHandler.update_user(user)
 
         return {"message": "updated"}
 
     def delete(self, id):
-        return self._delete_user_from_json(id)
-
-    def _delete_user_from_json(self, id):
-        users = JSONHandler.get_users()
-        if not id in users:
+        if JSONHandler.id_exists(id):
             return {"message": "not exists"}
-        del users[id]
-        self._update_users(users)
+
+        JSONHandler.delete_user(id)
+
         return {"message": "deleted"}
 
     def _update_users(self, users):
