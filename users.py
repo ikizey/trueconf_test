@@ -30,6 +30,15 @@ class JSONHandler:
         users[user["id"]] = user
         cls._write_users(users)
 
+    @staticmethod
+    def is_passed_json_valid(json):
+        """Check if passed json is valid."""
+        try:
+            name = json["name"]
+        except:
+            return False
+        return True if name and len(json) == 1 else False
+
 
 class Users(Resource):
     def get(self):
@@ -48,18 +57,15 @@ class UserById(Resource):
         return self._update_user(id)
 
     def _update_user(self, id):
-        json = request.json
-        if not self._is_update_json_valid(json):
+        if not JSONHandler.is_passed_json_valid(request.json):
             return {"message": "use format: {'name': <name>}"}
+
         user = {"id": id}
-        user.update(json)
+        user.update(request.json)
 
         JSONHandler.update_users(user)
 
         return {"message": "updated"}
-
-    def _is_update_json_valid(self, json):
-        return True if list(json.keys()) == ['name'] else False
 
     def delete(self, id):
         return self._delete_user_from_json(id)
@@ -83,14 +89,11 @@ class UserByName(Resource):
         print(json.keys())
         return self._add_user(json)
 
-    def _is_valid(self, post_json):
-        return True if list(post_json.keys()) == ['name'] else False
-
     def _get_max_id(self):
         return max(int(key) for key in Users().get().keys())
 
     def _add_user(self, json):
-        if not self._is_valid(json):
+        if not JSONHandler.is_passed_json_valid(json):
             return {"message": "use format: {'name': <name>}"}
 
         id = str(self._get_max_id() + 1)
