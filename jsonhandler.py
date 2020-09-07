@@ -14,21 +14,16 @@ class JsonHandler:
             file = open(cls.json, "w")
             file.close()
 
-    @staticmethod
-    def _is_json(file):
-        try:
-            json.load(file)
-        except ValueError:
-            return False
-        return True
-
     @classmethod
     def get_users(cls):
         """Get all data from json."""
         with open(cls.json, "r") as usersJSON:
-            if cls._is_json(usersJSON):
-                return json.load(usersJSON)
-            return json.loads({})
+            try:
+                users = json.load(usersJSON)
+            except ValueError:
+                return json.loads("{}")
+            else:
+                return users
 
     @classmethod
     def _write_users(cls, data):
@@ -53,7 +48,11 @@ class JsonHandler:
     @classmethod
     def last_user_id(cls):
         """Return last user id."""
-        return max(int(key) for key in cls.get_users().keys())
+        users = cls.get_users()
+        if users:
+            return max(int(key) for key in users.keys())
+        else:
+            return 0
 
     @staticmethod
     def is_passed_json_valid(json):
