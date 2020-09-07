@@ -12,7 +12,7 @@ class JSONHandler:
     json = "users_db.json"
 
     @classmethod
-    def read_all(cls):
+    def get_users(cls):
         """Get all data from json."""
         with open(cls.json, "r") as usersJSON:
             return json.load(usersJSON)
@@ -21,17 +21,14 @@ class JSONHandler:
 class Users(Resource):
     def get(self):
         """Return list of users."""
-        return JSONHandler.read_all()
+        return JSONHandler.get_users()
 
 
 class UserById(Resource):
     def get(self, id):
-        return self._get_user_from_json(id)
-
-    def _get_user_from_json(self, id):
-        with open("users_db.json", "r") as usersJSON:
-            users = json.load(usersJSON)
-            return users.get(id, {"message": "not exists"})
+        """Get user by id."""
+        users = JSONHandler.get_users()
+        return users.get(id, {"message": "not exists"})
 
     def post(self, id):
         return self._update_user(id)
@@ -85,7 +82,7 @@ class UserByName(Resource):
         if not self._is_valid(json):
             return {"message": "use format: {'name': <name>}"}
 
-        id = self._get_max_id() + 1
+        id = str(self._get_max_id() + 1)
         user = {"id": id}
         user.update(json)
         print(id, user, json)
