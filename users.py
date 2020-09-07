@@ -64,4 +64,5 @@ api.add_resource(UserById, "/user/<id>")
 api.add_resource(UserByName, "/users/add")
 
 if __name__ == "__main__":
+    JsonHandler.create_file()
     app.run(debug=True)

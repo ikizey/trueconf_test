@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 
 class JsonHandler:
@@ -7,10 +8,27 @@ class JsonHandler:
     json = "users_db.json"
 
     @classmethod
+    def create_file(cls):
+        """Create json file, if not exists."""
+        if not Path(cls.json).is_file():
+            file = open(cls.json, "w")
+            file.close()
+
+    @staticmethod
+    def _is_json(file):
+        try:
+            json.load(file)
+        except ValueError:
+            return False
+        return True
+
+    @classmethod
     def get_users(cls):
         """Get all data from json."""
         with open(cls.json, "r") as usersJSON:
-            return json.load(usersJSON)
+            if cls._is_json(usersJSON):
+                return json.load(usersJSON)
+            return json.loads({})
 
     @classmethod
     def _write_users(cls, data):
