@@ -7,10 +7,12 @@ verify_ssl = true
 pylint = "*"
 pydocstyle = "*"
 black = "*"
+rope = "*"
 
 [packages]
 flask = "*"
 flask-restful = "*"
+requests = "*"
 
 [requires]
 python_version = "3.8"
