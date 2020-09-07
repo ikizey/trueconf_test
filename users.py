@@ -17,6 +17,19 @@ class JSONHandler:
         with open(cls.json, "r") as usersJSON:
             return json.load(usersJSON)
 
+    @classmethod
+    def _write_users(cls, data):
+        """Write all data to json."""
+        with open(cls.json, "w") as usersJSON:
+            json.dump(data, usersJSON)
+
+    @classmethod
+    def update_users(cls, user):
+        """Update data."""
+        users = cls.get_users()
+        users[user["id"]] = user
+        cls._write_users(users)
+
 
 class Users(Resource):
     def get(self):
@@ -31,6 +44,7 @@ class UserById(Resource):
         return users.get(id, {"message": "not exists"})
 
     def post(self, id):
+        """Update user data."""
         return self._update_user(id)
 
     def _update_user(self, id):
@@ -39,9 +53,9 @@ class UserById(Resource):
             return {"message": "use format: {'name': <name>}"}
         user = {"id": id}
         user.update(json)
-        users = self._get_users()
-        users[id] = user
-        self._update_users(users)
+
+        JSONHandler.update_users(user)
+
         return {"message": "updated"}
 
     def _is_update_json_valid(self, json):
@@ -51,15 +65,12 @@ class UserById(Resource):
         return self._delete_user_from_json(id)
 
     def _delete_user_from_json(self, id):
-        users = self._get_users()
+        users = JSONHandler.get_users()
         if not id in users:
             return {"message": "not exists"}
         del users[id]
         self._update_users(users)
         return {"message": "deleted"}
-
-    def _get_users(self):
-        return Users().get()
 
     def _update_users(self, users):
         with open("users_db.json", "w") as jsonFile:
