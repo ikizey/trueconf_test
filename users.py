@@ -37,6 +37,11 @@ class JSONHandler:
         del users[id]
         cls._write_users(users)
 
+    @classmethod
+    def last_user_id(cls):
+        """Return last user id."""
+        return max(int(key) for key in cls.get_users().keys())
+
     @staticmethod
     def is_passed_json_valid(json):
         """Check if passed json is valid."""
@@ -66,7 +71,7 @@ class UserById(Resource):
 
     def post(self, id):
         """Update user data."""
-        if JSONHandler.id_exists(id):
+        if not JSONHandler.id_exists(id):
             return {"message": "not exists"}
 
         if not JSONHandler.is_passed_json_valid(request.json):
@@ -80,48 +85,28 @@ class UserById(Resource):
         return {"message": "updated"}
 
     def delete(self, id):
-        if JSONHandler.id_exists(id):
+        """Delete user by id."""
+        if not JSONHandler.id_exists(id):
             return {"message": "not exists"}
 
         JSONHandler.delete_user(id)
 
         return {"message": "deleted"}
 
-    def _update_users(self, users):
-        with open("users_db.json", "w") as jsonFile:
-            json.dump(users, jsonFile)
-
 
 class UserByName(Resource):
     def put(self):
-        json = request.json
-        print(json.keys())
-        return self._add_user(json)
-
-    def _get_max_id(self):
-        return max(int(key) for key in Users().get().keys())
-
-    def _add_user(self, json):
-        if not JSONHandler.is_passed_json_valid(json):
+        """Add user."""
+        if not JSONHandler.is_passed_json_valid(request.json):
             return {"message": "use format: {'name': <name>}"}
 
-        id = str(self._get_max_id() + 1)
+        id = str(JSONHandler.last_user_id() + 1)
         user = {"id": id}
-        user.update(json)
-        print(id, user, json)
-        self._add_user_to_json_db(user, id)
+        user.update(request.json)
+
+        JSONHandler.update_user(user)
 
         return user
-
-    def _add_user_to_json_db(self, user, id):
-        with open("users_db.json", "r+") as jsonFile:
-            data = json.load(jsonFile)
-
-            data[id] = user
-
-            jsonFile.seek(0)
-            json.dump(data, jsonFile)
-            jsonFile.truncate()
 
 
 api.add_resource(Users, "/")
