@@ -24,6 +24,23 @@ class UserById(Resource):
             users = json.load(usersJSON)
             return users.get(id, {"message": "not exists"})
 
+    def post(self, id):
+        return self._update_user(id)
+
+    def _update_user(self, id):
+        json = request.json
+        if not self._is_update_json_valid(json):
+            return {"message": "use format: {'name': <name>}"}
+        user = {"id": id}
+        user.update(json)
+        users = self._get_users()
+        users[id] = user
+        self._update_users(users)
+        return {"message": "updated"}
+
+    def _is_update_json_valid(self, json):
+        return True if list(json.keys()) == ['name'] else False
+
     def delete(self, id):
         return self._delete_user_from_json(id)
 

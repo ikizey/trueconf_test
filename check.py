@@ -1,7 +1,8 @@
 import requests
-from requests.api import request
 
 URL = "http://127.0.0.1:5000/"
+
+# check user list
 response = requests.get(url=URL)
 print(response.json())
 
@@ -32,4 +33,8 @@ print(response.json())
 # check user3 (not exists again)
 url3 = URL + "user/3"
 response = requests.get(url=url3)
+print(response.json())
+
+# check user2 update
+response = requests.post(url=url2, json={'name': 'Jack'})
 print(response.json())
