@@ -2,6 +2,15 @@ import requests
 
 URL = "http://127.0.0.1:5000/"
 
+# add user1
+urladd = URL + "users/add"
+response = requests.put(url=urladd, json={'name': 'John'})
+print(response.json())
+
+# add user2
+response = requests.put(url=urladd, json={'name': 'Jane'})
+print(response.json())
+
 # check user list
 response = requests.get(url=URL)
 print(response.json())
@@ -37,4 +46,8 @@ print(response.json())
 
 # check user2 update
 response = requests.post(url=url2, json={'name': 'Jack'})
+print(response.json())
+
+# return back
+response = requests.post(url=url2, json={'name': 'Jane'})
 print(response.json())
